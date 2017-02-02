@@ -292,6 +292,7 @@ var loadData = function() {
 	var deferred = new $.Deferred();
 	var req1 = $.getJSON("/api/v1/pods?labelSelector=visualize%3Dtrue", function( data ) {
 		pods = data;
+		data.items = data.items||[];
 		$.each(data.items, function(key, val) {
     	val.type = 'pod';
       if (val.metadata.labels && val.metadata.labels.uses) {
@@ -307,6 +308,7 @@ var loadData = function() {
 
 	var req2 = $.getJSON("/api/v1/replicationcontrollers?labelSelector=visualize%3Dtrue", function( data ) {
 		controllers = data;
+		data.items = data.items||[];
 		$.each(data.items, function(key, val) {
       val.type = 'replicationController';
       //console.log("Controller ID = " + val.metadata.name)
@@ -318,6 +320,7 @@ var loadData = function() {
 		services = data;
 		//console.log("loadData(): Services");
 		//console.log(services);
+		data.items = data.items||[];
 		$.each(data.items, function(key, val) {
       val.type = 'service';
       //console.log("service ID = " + val.metadata.name)
@@ -328,6 +331,7 @@ var loadData = function() {
 		nodes = data;
 		//console.log("loadData(): Services");
 		//console.log(nodes);
+		data.items = data.items||[];
 		$.each(data.items, function(key, val) {
       val.type = 'node';
       //console.log("service ID = " + val.metadata.name)
