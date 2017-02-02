@@ -31,6 +31,7 @@ var pods = [];
 var services = [];
 var controllers = [];
 var uses = {};
+var deployments = [];
 
 var groups = {};
 
@@ -52,6 +53,7 @@ var insertByName = function(index, value) {
 var groupByName = function() {
 	$.each(pods.items, insertByName);
 	$.each(controllers.items, insertByName);
+	$.each(deployments.items, insertByName);
 	$.each(services.items, insertByName);
 };
 
@@ -65,6 +67,32 @@ var matchesLabelQuery = function(labels, selector) {
 	return match;
 }
 
+var connectDeployments = function() {
+    for (const deployment of deployments.items) {
+        // console.log("logging deployment", deployment);
+        for (const pod of pods.items) {
+            if (matchesLabelQuery(pod.metadata.labels, deployment.spec.selector.matchLabels)) {
+                jsPlumb.connect({
+                    source: 'controller-' + deployment.metadata.name,
+                    target: 'pod-' + pod.metadata.name,
+                    anchors: ["Bottom", "Bottom"],
+                    paintStyle: {
+                        lineWidth: 5,
+                        strokeStyle: 'rgb(51,105,232)'
+                    },
+                    joinStyle: "round",
+                    endpointStyle: {
+                        fillStyle: 'rgb(51,105,232)',
+                        radius: 7
+                    },
+                    connector: ["Flowchart", {
+                        cornerRadius: 5
+                    }]
+                });
+            }
+        }
+    }
+};
 var connectControllers = function() {
     connectUses();
 	for (var i = 0; i < controllers.items.length; i++) {
@@ -338,7 +366,18 @@ var loadData = function() {
     });
 	});
 
-	$.when(req1, req2, req3, req4).then(function() {
+    var req5 = $.getJSON("/apis/extensions/v1beta1/namespaces/default/deployments?labelSelector=visualize%3Dtrue", function(data) {
+        deployments = data;
+        // console.log("loadData(): deployments");
+        data.items = data.items || [];
+        // console.log(deployments);
+        $.each(data.items, function(key, val) {
+            val.type = 'deployment';
+            //console.log("service ID = " + val.metadata.name)
+        });
+    });
+
+	$.when(req1, req2, req3, req4, req5).then(function() {
 		deferred.resolve();
 	});
 
@@ -352,6 +391,7 @@ function refresh(instance) {
 	controllers = [];
   nodes = [];
 	uses = {};
+	deployments=[];
 	groups = {};
 
 
@@ -361,6 +401,7 @@ function refresh(instance) {
     renderNodes();
 		renderGroups();
 		connectControllers();
+		connectDeployments();
 
 		setTimeout(function() {
 			refresh(instance);
