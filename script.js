@@ -41,7 +41,7 @@ var insertByName = function(index, value) {
     }
     // console.log("type = " + value.type + " labels = " + value.metadata.name);
     //	var list = groups[value.metadata.name];
-    var key = value.metadata.labels.name;
+    var key = value.metadata.labels.run;
     var list = groups[key];
     if (!list) {
         list = [];
@@ -100,7 +100,7 @@ var connectControllers = function() {
         //console.log("controller: " + controller.metadata.name)
         for (var j = 0; j < pods.items.length; j++) {
             var pod = pods.items[j];
-            if (pod.metadata.labels.name == controller.metadata.labels.name) {
+            if (pod.metadata.labels.run == controller.metadata.labels.run) {
                 if (controller.metadata.labels.version && pod.metadata.labels.version && (controller.metadata.labels.version != pod.metadata.labels.version)) {
                     continue;
                 }
@@ -177,7 +177,7 @@ var connectUses = function() {
             colorIx = 0;
         };
         $.each(pods.items, function(i, pod) {
-            var podKey = pod.metadata.labels.name;
+            var podKey = pod.metadata.labels.run;
             //console.log('connect uses key: ' +key + ', ' + podKey);
             if (podKey == key) {
                 $.each(list, function(j, serviceId) {
@@ -325,7 +325,7 @@ var renderGroups = function() {
                     (value.status.loadBalancer && value.status.loadBalancer.ingress ? "<br/><a style='color:white; text-decoration: underline' href='http://" + value.status.loadBalancer.ingress[0].ip + "'>" + value.status.loadBalancer.ingress[0].ip + "</a>" : "") +
                     '</span>');
             } else {
-                var key = 'controller-' + value.metadata.labels.name;
+                var key = 'controller-' + value.metadata.labels.run;
                 counts[key] = key in counts ? counts[key] + 1 : 0;
                 //eltDiv = $('<div class="window wide controller" title="' + value.metadata.name + '" id="controller-' + value.metadata.name +
                 //	'" style="left: ' + (900 + counts[key] * 100) + '; top: ' + (y + 100 + counts[key] * 100) + '"/>');
@@ -359,13 +359,13 @@ var insertUse = function(name, use) {
 
 var loadData = function() {
     var deferred = new $.Deferred();
-    var req1 = $.getJSON("/api/v1/pods?labelSelector=visualize%3Dtrue", function(data) {
+    var req1 = $.getJSON("/api/v1/namespaces/default/pods", function(data) {
         pods = data;
         data.items = data.items || [];
         $.each(data.items, function(key, val) {
             val.type = 'pod';
             if (val.metadata.labels && val.metadata.labels.uses) {
-                var key = val.metadata.labels.name;
+                var key = val.metadata.labels.run;
                 if (!uses[key]) {
                     uses[key] = val.metadata.labels.uses.split("_");
                 } else {
