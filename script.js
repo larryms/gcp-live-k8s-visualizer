@@ -387,7 +387,7 @@ var loadData = function() {
     });
 
 
-    var req3 = $.getJSON("/api/v1/services?labelSelector=visualize%3Dtrue", function(data) {
+    var req3 = $.getJSON("/api/v1/services?labelSelector=run", function(data) {
         services = data;
         //console.log("loadData(): Services");
         //console.log(services);
@@ -409,7 +409,7 @@ var loadData = function() {
         });
     });
 
-    var req5 = $.getJSON("/apis/extensions/v1beta1/namespaces/default/deployments?labelSelector=visualize%3Dtrue", function(data) {
+    var req5 = $.getJSON("/apis/extensions/v1beta1/namespaces/default/deployments", function(data) {
         deployments = data;
         // console.log("loadData(): deployments");
         data.items = data.items || [];
