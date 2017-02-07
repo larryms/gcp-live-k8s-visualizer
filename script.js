@@ -428,6 +428,8 @@ var loadData = function() {
     return deferred;
 };
 
+var autoRefresh = true;
+var setTimeoutToken =0;
 function refresh(instance) {
     pods = [];
     services = [];
@@ -446,12 +448,24 @@ function refresh(instance) {
         connectControllers();
         connectDeployments();
 
-        setTimeout(function() {
-            refresh(instance);
-        }, 2000);
+        if (autoRefresh) {
+            setTimeoutToken = setTimeout(function() {
+                refresh(instance);
+            }, 2000);
+        }
     });
 }
 
+function toggleAutoRefresh(ctrl) {
+        autoRefresh = !autoRefresh;
+        $(ctrl).addClass("fa-spin");
+        refresh();
+        if (!autoRefresh) {
+            clearTimeout(setTimeoutToken);
+            console.log("auto refresh disabled");
+            $(ctrl).removeClass("fa-spin");
+        }
+};
 jsPlumb.bind("ready", function() {
     var instance = jsPlumb.getInstance({
         // default drag options
@@ -473,7 +487,7 @@ jsPlumb.bind("ready", function() {
         ],
         Container: "flowchart-demo"
     });
-
+    refreshIcon= $("#refresh");
     refresh(instance);
     jsPlumb.fire("jsPlumbDemoLoaded", instance);
 });
