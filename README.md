@@ -11,9 +11,10 @@ That's it. The visualizer uses labels to organize the visualization.  In particu
 
    * ~~pods, replicationcontrollers, and services have a ```name``` label, and pods and their associated replication controller share the same ```name```, and~~
    * Uses the `run` label to create the visualization.
+   * Only picks up services that have a `run` label
    * the pods in your cluster will have a ```uses``` label which contains a comma separated list of services that the pod uses.
 
-
+I also threw in a button to let you control auto-refresh (default is on)
 
 ### Installation on AWS:
 
